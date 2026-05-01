@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Test apps and validate configs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Validate Docker Compose config
+        run: docker compose config --quiet
+
+      - name: Validate NGINX config
+        run: |
+          docker run --rm \
+            -v "$PWD/nginx:/etc/nginx/conf.d:ro" \
+            nginx:1.27-alpine \
+            nginx -t
+
+      - name: Build blue and green images
+        run: docker compose build blue green

@@ -44,6 +44,8 @@ jobs:
       - name: Validate NGINX config
         run: |
           docker run --rm \
+            --add-host blue:127.0.0.1 \
+            --add-host green:127.0.0.1 \
             -v "$PWD/nginx:/etc/nginx/conf.d:ro" \
             nginx:1.27-alpine \
             nginx -t

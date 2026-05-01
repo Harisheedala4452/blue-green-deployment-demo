@@ -14,7 +14,7 @@ Traffic is switched at the proxy layer only after the target version is healthy.
 ```mermaid
 flowchart LR
   User["User / Browser / curl"] --> Nginx["NGINX reverse proxy :8080"]
-  Nginx --> Active["active-upstream.conf"]
+  Nginx --> Active["active-upstream.inc"]
   Active --> Blue["Blue Flask app :5000"]
   Active -. switch .-> Green["Green Flask app :5000"]
   Blue --> HealthBlue["/health"]
@@ -30,7 +30,7 @@ blue-green-deployment-demo/
 │   ├── __init__.py
 │   └── main.py
 ├── nginx/
-│   ├── active-upstream.conf
+│   ├── active-upstream.inc
 │   ├── blue-upstream.conf
 │   ├── default.conf
 │   └── green-upstream.conf
@@ -102,7 +102,7 @@ curl http://localhost:8080/version
 The switch scripts:
 
 1. Check the target app health endpoint.
-2. Update `nginx/active-upstream.conf`.
+2. Update `nginx/active-upstream.inc`.
 3. Reload NGINX without stopping the container.
 4. Record the previous active color for rollback.
 

@@ -8,10 +8,12 @@ if [[ "$target_color" != "blue" && "$target_color" != "green" ]]; then
   exit 1
 fi
 
+active_file="nginx/active-upstream.inc"
+
 current_color="unknown"
-if grep -q "blue_app" nginx/active-upstream.conf; then
+if grep -q "blue_app" "$active_file"; then
   current_color="blue"
-elif grep -q "green_app" nginx/active-upstream.conf; then
+elif grep -q "green_app" "$active_file"; then
   current_color="green"
 fi
 
@@ -20,7 +22,7 @@ docker compose exec "$target_color" python -c "import urllib.request; urllib.req
 
 echo "$current_color" > .active-color
 
-cat > nginx/active-upstream.conf <<EOF
+cat > "$active_file" <<EOF
 # This file is updated by switch scripts.
 proxy_pass http://${target_color}_app;
 EOF
